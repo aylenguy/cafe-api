@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using CafeApi.Data;
 using CafeApi.Models;
 
@@ -15,7 +16,7 @@ namespace CafeApi.Controllers
             _context = context;
         }
 
-        // POST: api/reservas
+        // POST: api/reservas — público
         [HttpPost]
         public async Task<IActionResult> CrearReserva(Reserva reserva)
         {
@@ -30,12 +31,28 @@ namespace CafeApi.Controllers
             return Ok(reserva);
         }
 
-        // GET: api/reservas
+        // GET: api/reservas — solo admin
+        [Authorize]
         [HttpGet]
         public IActionResult ObtenerReservas()
         {
             var reservas = _context.Reservas.ToList();
             return Ok(reservas);
+        }
+
+        // DELETE: api/reservas/{id} — solo admin
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarReserva(int id)
+        {
+            var reserva = await _context.Reservas.FindAsync(id);
+
+            if (reserva == null)
+                return NotFound(new { mensaje = "Reserva no encontrada" });
+
+            _context.Reservas.Remove(reserva);
+            await _context.SaveChangesAsync();
+            return Ok(new { mensaje = "Reserva eliminada" });
         }
     }
 }
