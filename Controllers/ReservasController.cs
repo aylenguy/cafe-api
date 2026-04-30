@@ -33,9 +33,11 @@ namespace CafeApi.Controllers
                 return BadRequest(new { mensaje = "La fecha debe ser futura." });
 
             // Validación de negocio: máximo N reservas por franja horaria
+            var desde = dto.Fecha.AddMinutes(-30);
+            var hasta = dto.Fecha.AddMinutes(30);
+
             var reservasEnFranja = await _context.Reservas
-                .CountAsync(r => r.Fecha.Date == dto.Fecha.Date
-                              && Math.Abs((r.Fecha - dto.Fecha).TotalMinutes) < 30);
+                .CountAsync(r => r.Fecha >= desde && r.Fecha <= hasta);
 
             if (reservasEnFranja >= 10)
                 return Conflict(new { mensaje = "No hay lugares disponibles en ese horario." });

@@ -19,8 +19,11 @@ namespace CafeApi.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Telefono = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CantidadPersonas = table.Column<int>(type: "int", nullable: false)
+                    Personas = table.Column<int>(type: "int", nullable: false),
+                    Notas = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Estado = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -30,10 +30,11 @@ namespace CafeApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CantidadPersonas")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -42,6 +43,15 @@ namespace CafeApi.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notas")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Personas")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Telefono")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
