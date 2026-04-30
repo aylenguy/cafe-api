@@ -1,5 +1,28 @@
-﻿bin/
+﻿# Build
+bin/
 obj/
+
+# Visual Studio
 *.user
 .vs/
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Configuración sensible
 appsettings.Development.json
+appsettings.Production.json
+*.env
+
+# Base de datos local
+*.mdf
+*.ldf
+*.ndf
+
+# Logs
+logs/
+*.log
+
+# NuGet
+*.nupkg
+packages/
