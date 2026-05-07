@@ -3,9 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 🔥 Puerto Render
+if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    builder.WebHost.UseUrls($"http://*:{port}");
+}
 
 // Controllers
 builder.Services.AddControllers();
@@ -20,18 +26,16 @@ builder.Services.AddEndpointsApiExplorer();
 // Swagger con soporte JWT
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "CafeApi", Version = "v1" });  // ← agregado
-
+    c.SwaggerDoc("v1", new() { Title = "CafeApi", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,  // ← Http es más correcto que ApiKey
-        Scheme = "bearer",                                           // ← minúscula con Http
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
         BearerFormat = "JWT",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
         Description = "Ingresá el token JWT (sin escribir 'Bearer', Swagger lo agrega solo)"
     });
-
     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
@@ -40,7 +44,7 @@ builder.Services.AddSwaggerGen(c =>
                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id   = "Bearer"
+                    Id = "Bearer"
                 }
             },
             Array.Empty<string>()
@@ -48,18 +52,13 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS
-// CORS
+// 🔥 CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Frontend", policy =>
-    {
-        policy.SetIsOriginAllowed(origin =>
-                origin.Contains("localhost") ||
-                origin.Contains("vercel.app"))
+    options.AddPolicy("FrontendPolicy", policy =>
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
+              .AllowAnyMethod());
 });
 
 // JWT
@@ -78,7 +77,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ClockSkew = TimeSpan.Zero  // ← sin margen de tolerancia en expiración
+            ClockSkew = TimeSpan.Zero
         };
     });
 
@@ -91,10 +90,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CafeApi v1"));
 }
 
-app.UseHttpsRedirection();
-app.UseCors("Frontend");
+// 🔥 Sin HTTPS redirect (Render lo maneja)
+// app.UseHttpsRedirection();
+
+app.UseCors("FrontendPolicy"); // 🔥 Antes de Authentication
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
